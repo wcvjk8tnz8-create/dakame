@@ -1,0 +1,162 @@
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #0b0b12;
+  --color-card: #15151f;
+  --color-card-2: #1c1c29;
+  --color-line: #2a2a3d;
+  --color-muted: #8f8fae;
+  --color-text: #f3f3f8;
+}
+
+:root {
+  /* 习惯主色，由页面从 Redis 读取后通过内联 style 覆盖 */
+  --habit: #6366f1;
+  color-scheme: dark;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background:
+    radial-gradient(1100px 480px at 50% -12%, color-mix(in srgb, var(--habit) 26%, transparent), transparent 68%),
+    #0b0b12;
+  color: var(--color-text);
+  font-family:
+    ui-sans-serif, system-ui, -apple-system, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', sans-serif;
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 移动端优先：最大宽度 480px 居中 */
+.app-shell {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 18px calc(96px + env(safe-area-inset-bottom));
+  min-height: 100dvh;
+}
+
+.card {
+  background: linear-gradient(180deg, var(--color-card-2), var(--color-card));
+  border: 1px solid var(--color-line);
+  border-radius: 18px;
+  padding: 16px;
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  letter-spacing: 0.02em;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 14px;
+  border: 1px solid var(--color-line);
+  background: var(--color-card-2);
+  color: var(--color-text);
+  padding: 12px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.12s ease, opacity 0.12s ease;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--habit);
+  border-color: transparent;
+  color: #fff;
+}
+
+.btn-danger {
+  background: transparent;
+  border-color: #5b2a2a;
+  color: #ff8080;
+}
+
+.btn:disabled {
+  opacity: 0.55;
+}
+
+.input {
+  width: 100%;
+  background: #0f0f18;
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 11px 13px;
+  color: var(--color-text);
+  font-size: 15px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--habit);
+}
+
+.label {
+  display: block;
+  font-size: 13px;
+  color: var(--color-muted);
+  margin-bottom: 6px;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+/* 大圆按钮 */
+.checkin-ring {
+  width: 168px;
+  height: 168px;
+  border-radius: 999px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border: 2px solid var(--habit);
+  background: radial-gradient(circle at 50% 35%, color-mix(in srgb, var(--habit) 38%, transparent), transparent 70%);
+  transition: transform 0.14s ease, box-shadow 0.2s ease;
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--habit) 45%, transparent);
+}
+
+.checkin-ring:active {
+  transform: scale(0.95);
+}
+
+.checkin-ring[data-done='true'] {
+  background: var(--habit);
+  box-shadow: 0 12px 40px -12px var(--habit);
+}
+
+@keyframes pop {
+  0% { transform: scale(0.9); }
+  60% { transform: scale(1.06); }
+  100% { transform: scale(1); }
+}
+
+.pop {
+  animation: pop 0.28s ease;
+}
