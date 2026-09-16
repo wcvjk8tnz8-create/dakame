@@ -3,8 +3,7 @@ import Link from 'next/link'
 import { missingEnv } from '@/lib/env'
 
 const DOCS: Record<string, string> = {
-  NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: 'Clerk → Configure → API Keys → Publishable key',
-  CLERK_SECRET_KEY: 'Clerk → Configure → API Keys → Secret key',
+  AUTH_SECRET: '任意 32 位随机字符串，可用 openssl rand -hex 32 生成',
   UPSTASH_REDIS_REST_URL: 'Upstash 控制台 → 数据库详情 → REST API → UPSTASH_REDIS_REST_URL',
   UPSTASH_REDIS_REST_TOKEN: 'Upstash 控制台 → 数据库详情 → REST API → UPSTASH_REDIS_REST_TOKEN',
 }

@@ -24,7 +24,7 @@ export function getRedis(): Redis {
   return client
 }
 
-/** 所有 key 的统一定义。userId 均来自 Clerk auth()，绝不接受客户端传入。 */
+/** 所有 key 的统一定义。userId 均来自服务端会话，绝不接受客户端传入。 */
 export const KEY = {
   user: (userId: string) => `dakame:user:${userId}`,
   checkin: (userId: string, yyyyMM: string) => `dakame:checkin:${userId}:${yyyyMM}`,
@@ -32,6 +32,14 @@ export const KEY = {
   learn: (userId: string, yyyyMM: string) => `dakame:learn:${userId}:${yyyyMM}`,
   learnAnswers: (userId: string) => `dakame:learn:answers:${userId}`,
   dailyLesson: (date: string) => `dakame:learn:daily:${date}`,
+
+  // ---- 认证 ----
+  authUser: (userId: string) => `dakame:auth:user:${userId}`,
+  githubIndex: (githubId: string) => `dakame:auth:github:${githubId}`,
+  emailIndex: (email: string) => `dakame:auth:email:${email}`,
+  session: (tokenHash: string) => `dakame:auth:session:${tokenHash}`,
+  userSessions: (userId: string) => `dakame:auth:sessions:${userId}`,
+  otp: (email: string) => `dakame:auth:otp:${email}`,
 } as const
 
 /** 清除某位用户在 dakame 下的全部 key（清除数据用）。 */

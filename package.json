@@ -2,7 +2,7 @@
   "name": "dakame",
   "version": "0.1.0",
   "private": true,
-  "description": "打卡么 — 打开即用、3 秒完成打卡的极简习惯打卡 Web App（Clerk 登录 + Upstash Redis + AI 英语补习）",
+  "description": "打卡么 — 打开即用、3 秒完成打卡的极简习惯打卡 Web App（GitHub OAuth2 / 邮箱验证码登录 + Upstash Redis + AI 英语补习）",
   "license": "MIT",
   "scripts": {
     "dev": "next dev",
@@ -11,10 +11,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@clerk/nextjs": "^7.9.2",
     "@upstash/ratelimit": "^2.1.0",
     "@upstash/redis": "^1.38.4",
     "date-fns": "^4.4.0",
+    "jose": "^5.9.6",
     "lucide-react": "^0.469.0",
     "next": "^16.3.5",
     "react": "^19.2.0",

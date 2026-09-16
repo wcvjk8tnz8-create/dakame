@@ -1,8 +1,8 @@
 'use server'
 
-import { auth } from '@clerk/nextjs/server'
 import { revalidatePath } from 'next/cache'
-import { redirect } from 'next/navigation'
+
+import { requireUser } from '@/lib/auth'
 
 import { generateDailyLesson, gradeAnswer, isAIConfigured, currentProvider, PROVIDER_LABEL, currentModel } from '@/lib/ai'
 import {
@@ -34,13 +34,12 @@ import type { ActionState, GradeResult, Goals, Habit, Lesson, MonthCell } from '
 
 /**
  * 所有数据读写都经过 Server Actions。
- * userId 一律来自 Clerk 的 auth()，绝不接受客户端传入。
+ * userId 一律来自服务端会话（Redis session / JWT），绝不接受客户端传入。
  */
 
 async function requireUserId(): Promise<string> {
-  const { userId } = await auth()
-  if (!userId) redirect('/sign-in')
-  return userId
+  const user = await requireUser()
+  return user.id
 }
 
 function revalidateAll() {

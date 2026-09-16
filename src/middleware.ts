@@ -1,35 +1,41 @@
-import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server'
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { ACCESS_COOKIE, REFRESH_COOKIE } from '@/lib/cookies'
+import { verifyAccessToken } from '@/lib/jwt'
+
 /**
- * 路由保护：除 /sign-in、/sign-up、/sponsor 外全部需要登录。
- * 未配置 Clerk 环境变量时（例如刚 clone 下来还没填 key）直接放行，
- * 由页面渲染配置引导卡片，避免本地开发直接 500。
+ * 轻量路由保护（Edge 安全，不访问 Redis）：
+ *  - access JWT 有效 → 直接放行
+ *  - 没有 refresh cookie → 重定向登录
+ *  - 有 refresh cookie 但 access 过期 → 放行，交给 Node 运行时换签续期
  */
 
-const isPublicRoute = createRouteMatcher([
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/sponsor(.*)',
-])
+const PUBLIC_PATHS = ['/sign-in', '/sign-up', '/sponsor', '/api/auth']
 
-const hasClerk = Boolean(
-  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
-)
+function isPublic(pathname: string): boolean {
+  return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))
+}
 
-const withClerk = clerkMiddleware(async (auth, req) => {
-  if (!isPublicRoute(req)) {
-    await auth.protect()
-  }
-})
+export async function middleware(req: NextRequest) {
+  const { pathname, search } = req.nextUrl
 
-const passthrough = (_req: NextRequest) => NextResponse.next()
+  if (isPublic(pathname)) return NextResponse.next()
 
-export default hasClerk ? withClerk : passthrough
+  const access = req.cookies.get(ACCESS_COOKIE)?.value
+  if (access && (await verifyAccessToken(access))) return NextResponse.next()
+
+  const refresh = req.cookies.get(REFRESH_COOKIE)?.value
+  if (refresh) return NextResponse.next()
+
+  const url = req.nextUrl.clone()
+  url.pathname = '/sign-in'
+  url.search = ''
+  if (pathname !== '/') url.searchParams.set('next', `${pathname}${search}`)
+  return NextResponse.redirect(url)
+}
 
 export const config = {
   matcher: [
     '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
   ],
 }

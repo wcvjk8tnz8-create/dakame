@@ -4,21 +4,13 @@
  */
 
 export type EnvKey =
-  | 'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY'
-  | 'CLERK_SECRET_KEY'
+  | 'AUTH_SECRET'
   | 'UPSTASH_REDIS_REST_URL'
   | 'UPSTASH_REDIS_REST_TOKEN'
 
-export function hasClerk(): boolean {
-  return Boolean(
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.CLERK_SECRET_KEY,
-  )
-}
-
 export function missingEnv(): EnvKey[] {
   const required: EnvKey[] = [
-    'NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY',
-    'CLERK_SECRET_KEY',
+    'AUTH_SECRET',
     'UPSTASH_REDIS_REST_URL',
     'UPSTASH_REDIS_REST_TOKEN',
   ]

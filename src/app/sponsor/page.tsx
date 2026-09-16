@@ -60,8 +60,8 @@ export default function SponsorPage() {
           <Coffee size={14} /> 钱花在哪
         </div>
         <ul className="hint" style={{ paddingLeft: 18, margin: 0, display: 'grid', gap: 4 }}>
-          <li style={{ listStyle: 'disc' }}>Upstash Redis：所有打卡数据的存储</li>
-          <li style={{ listStyle: 'disc' }}>Clerk：账号与登录安全</li>
+          <li style={{ listStyle: 'disc' }}>Upstash Redis：打卡数据 + 登录会话的存储</li>
+          <li style={{ listStyle: 'disc' }}>Resend：邮箱验证码（GitHub 登录不需要）</li>
           <li style={{ listStyle: 'disc' }}>Cloudflare Workers AI：每日英语题生成与批改</li>
         </ul>
         <p className="hint">

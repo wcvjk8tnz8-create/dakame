@@ -2,11 +2,15 @@ import GoalProgress from '@/components/GoalProgress'
 import GoalsForm from '@/components/GoalsForm'
 import SetupNotice from '@/components/SetupNotice'
 import { getGoalProgress, getGoals, getHabit } from '@/app/actions'
+import { requireUser } from '@/lib/auth'
 import { isAppConfigured } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
 export default async function GoalsPage() {
+  // 未登录会在 requireUser 里跳登录页
+  await requireUser()
+
   if (!isAppConfigured()) return <SetupNotice />
 
   const [habit, goals, progress] = await Promise.all([

@@ -1,12 +1,16 @@
 import CalendarGrid from '@/components/CalendarGrid'
 import SetupNotice from '@/components/SetupNotice'
 import { getHabit, getMonthGrid } from '@/app/actions'
+import { requireUser } from '@/lib/auth'
 import { fromISODate, todayISO } from '@/lib/date'
 import { isAppConfigured } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
 export default async function CalendarPage() {
+  // 未登录会在 requireUser 里跳登录页
+  await requireUser()
+
   if (!isAppConfigured()) return <SetupNotice />
 
   const habit = await getHabit()

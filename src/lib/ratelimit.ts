@@ -10,6 +10,7 @@ import { getRedis, hasRedis } from './redis'
 
 let writeLimiter: Ratelimit | null = null
 let aiLimiter: Ratelimit | null = null
+let emailLimiter: Ratelimit | null = null
 
 function getWriteLimiter(): Ratelimit | null {
   if (!hasRedis()) return null
@@ -58,6 +59,27 @@ export class RateLimitError extends Error {
     super(message)
     this.name = 'RateLimitError'
   }
+}
+
+/** 邮箱验证码发送：每个邮箱每 10 分钟 5 次 */
+function getEmailLimiter(): Ratelimit | null {
+  if (!hasRedis()) return null
+  if (!emailLimiter) {
+    emailLimiter = new Ratelimit({
+      redis: getRedis(),
+      limiter: Ratelimit.slidingWindow(5, '10 m'),
+      prefix: 'dakame:rl:email',
+      analytics: false,
+    })
+  }
+  return emailLimiter
+}
+
+export async function limitEmail(email: string): Promise<LimitResult> {
+  const limiter = getEmailLimiter()
+  if (!limiter) return { success: true, remaining: 999 }
+  const res = await limiter.limit(email.toLowerCase())
+  return { success: res.success, remaining: res.remaining }
 }
 
 /** 写操作统一守卫 */

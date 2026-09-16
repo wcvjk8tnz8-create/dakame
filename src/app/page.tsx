@@ -1,10 +1,10 @@
-import { UserButton } from '@clerk/nextjs'
 import { Flame, Heart } from 'lucide-react'
 import Link from 'next/link'
 
 import CheckInButton from '@/components/CheckInButton'
 import GoalProgress from '@/components/GoalProgress'
 import SetupNotice from '@/components/SetupNotice'
+import UserMenu from '@/components/UserMenu'
 import WeekDots from '@/components/WeekDots'
 import {
   getCheckInStatus,
@@ -13,16 +13,19 @@ import {
   getStreak,
   getWeekCheckIns,
 } from '@/app/actions'
+import { countSessions, requireUser } from '@/lib/auth'
 import { prettyDate, todayISO } from '@/lib/date'
 import { isAppConfigured, SPONSOR_URL } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
 export default async function TodayPage() {
+  const user = await requireUser()
+
   if (!isAppConfigured()) {
     return (
       <>
-        <TopBar />
+        <TopBar user={user} sessions={0} />
         <SetupNotice />
       </>
     )
@@ -37,11 +40,13 @@ export default async function TodayPage() {
     getGoalProgress(),
   ])
 
+  const sessions = await countSessions(user.id)
+
   return (
     <div
       style={{ display: 'grid', gap: 18, '--habit': habit.color } as React.CSSProperties}
     >
-      <TopBar date={prettyDate(today)} />
+      <TopBar date={prettyDate(today)} user={user} sessions={sessions} />
 
       <div style={{ display: 'grid', justifyItems: 'center', gap: 14, paddingTop: 6 }}>
         <div style={{ display: 'grid', justifyItems: 'center', gap: 4 }}>
@@ -79,7 +84,15 @@ export default async function TodayPage() {
   )
 }
 
-function TopBar({ date }: { date?: string }) {
+function TopBar({
+  date,
+  user,
+  sessions,
+}: {
+  date?: string
+  user: { name: string; email: string; avatarUrl: string }
+  sessions: number
+}) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
       <div>
@@ -95,7 +108,12 @@ function TopBar({ date }: { date?: string }) {
         >
           <Heart size={18} />
         </Link>
-        <UserButton afterSignOutUrl="/sign-in" />
+        <UserMenu
+          name={user.name}
+          email={user.email}
+          avatarUrl={user.avatarUrl}
+          sessions={sessions}
+        />
       </div>
     </div>
   )

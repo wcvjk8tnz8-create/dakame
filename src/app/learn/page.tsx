@@ -11,12 +11,16 @@ import {
   getLearnHistory,
   getLearnStatusToday,
 } from '@/app/actions'
+import { requireUser } from '@/lib/auth'
 import { todayISO } from '@/lib/date'
 import { isAppConfigured } from '@/lib/env'
 
 export const dynamic = 'force-dynamic'
 
 export default async function LearnPage() {
+  // 未登录会在 requireUser 里跳登录页
+  await requireUser()
+
   if (!isAppConfigured()) return <SetupNotice />
 
   const [habit, lesson, history, done, ai] = await Promise.all([
