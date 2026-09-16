@@ -35,7 +35,7 @@ pnpm dev
 
 会话是 **JWT + Redis 混合**：
 
-- `dk_at`：15 分钟短期 JWT（jose HS256）。middleware 里纯签名校验就放行，不查 Redis，快。
+- `dk_at`：15 分钟短期 JWT（jose HS256）。proxy.ts 里纯签名校验就放行，不查 Redis，快。
 - `dk_rt`：refresh token，随机 32 字节，Redis 里只存 sha256，30 天滑动续期。
 - 撤销：删掉 Redis 里的 session 即可让该设备立即失效；也支持「退出所有设备」。
 
@@ -110,7 +110,7 @@ src/
     cookies.ts mailer.ts oauth.ts
     checkin.ts              # Bitmap 打卡逻辑
     goals.ts habit.ts learn.ts ai.ts date.ts ratelimit.ts env.ts types.ts
-  middleware.ts             # 路由保护
+  proxy.ts                  # 路由保护（Next.js 16 起 middleware 更名为 proxy）
 public/                     # manifest.webmanifest / sw.js / icons
 ```
 

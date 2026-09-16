@@ -1,4 +1,4 @@
-/** Cookie 名常量：middleware（Edge）与服务端共用，单独放避免引入 node:crypto */
+/** Cookie 名常量：proxy（Edge 运行时）与服务端共用，单独放避免引入 node:crypto */
 
 export const ACCESS_COOKIE = 'dk_at'
 export const REFRESH_COOKIE = 'dk_rt'

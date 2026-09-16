@@ -2,7 +2,7 @@
  * 自研认证：JWT（短期 access）+ Redis（可撤销 refresh session）混合方案。
  *
  * 设计：
- *  - cookie `dk_at`  : 短期 access JWT（jose HS256，15 分钟）。middleware 里纯签名校验即可放行，
+ *  - cookie `dk_at`  : 短期 access JWT（jose HS256，15 分钟）。proxy（src/proxy.ts）里纯签名校验即可放行，
  *                      无需访问 Redis，快。
  *  - cookie `dk_rt`  : refresh token（32 字节随机 hex，只存 Redis 的 sha256）。
  *                      access 过期后由 Node 运行时用它换签，实现滑动续期。
@@ -60,28 +60,9 @@ export function appUrl(path = '/'): string {
   return `${baseUrl()}${path}`
 }
 
-/** 签发短期 access JWT */
-export async function signAccessToken(userId: string): Promise<string> {
-  const { SignJWT } = await import('jose')
-  return new SignJWT({ sub: userId })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime(`${ACCESS_TTL_SECONDS}s`)
-    .sign(secretKey())
-}
+// signAccessToken / verifyAccessToken 来自 ./jwt（Edge 安全），本文件只做 re-export
 
-/** 校验 access JWT（不查 Redis，middleware 也能用） */
-export async function verifyAccessToken(token: string): Promise<string | null> {
-  try {
-    const { jwtVerify } = await import('jose')
-    const { payload } = await jwtVerify(token, secretKey())
-    return typeof payload.sub === 'string' ? payload.sub : null
-  } catch {
-    return null
-  }
-}
-
-/** 创建会话：写 Redis + 下發两个 cookie */
+/** 创建会话：写 Redis + 下发两个 cookie */
 export async function createSession(
   userId: string,
   meta: { userAgent?: string; ip?: string } = {},

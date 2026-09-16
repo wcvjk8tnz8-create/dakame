@@ -1,6 +1,6 @@
 /**
  * 短期 access JWT（jose / HS256）。
- * 单独成文件的原因：middleware 跑在 Edge Runtime，不能引入含 node:crypto 的模块，
+ * 单独成文件的原因：src/proxy.ts 跑在 Edge Runtime，不能引入含 node:crypto 的模块，
  * 这里只依赖 jose，Edge 与 Node 都能用。
  */
 
