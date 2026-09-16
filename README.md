@@ -143,7 +143,13 @@ public/                     # manifest.webmanifest / sw.js / icons
 
 ## 赞助
 
-打卡么免费、无广告。若觉得有用，可以请作者（学生）喝杯奶茶：https://xxx.com/sponsor
+项目内置捐助页：`/sponsor`（首页底部、设置页、右上角 ♥ 均可进入），内含 AlipayHK 收款二维码。
+
+想换成自己的捐助外链，在 `.env.local` 里设 `NEXT_PUBLIC_SPONSOR_URL=https://xxx.com/sponsor` 即可覆盖。
+
+二维码图片放在 `public/sponsor-alipayhk.jpg`，换成你自己的收款码就行。
+
+打卡么免费、无广告。作者是学生，赞助主要用于续费和买咖啡 ☕
 
 ## License
 

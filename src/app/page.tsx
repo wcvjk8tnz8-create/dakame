@@ -80,6 +80,23 @@ export default async function TodayPage() {
         <div className="card-title">目标进度</div>
         <GoalProgress progress={progress} />
       </div>
+
+      <Link
+        href={SPONSOR_URL}
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          justifyContent: 'center',
+          padding: '10px 12px',
+          borderRadius: 14,
+          border: '1px dashed var(--color-line)',
+          fontSize: 13,
+          color: 'var(--color-muted)',
+        }}
+      >
+        <Heart size={14} /> 觉得好用？请作者喝杯奶茶
+      </Link>
     </div>
   )
 }

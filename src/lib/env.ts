@@ -21,5 +21,9 @@ export function isAppConfigured(): boolean {
   return missingEnv().length === 0
 }
 
-/** 捐助页外链（可在 .env.local 覆盖） */
-export const SPONSOR_URL = process.env.NEXT_PUBLIC_SPONSOR_URL ?? 'https://xxx.com/sponsor'
+/**
+ * 捐助页链接。
+ * 默认指向项目自带的 /sponsor 页面（内含 AlipayHK 收款码）；
+ * 想换成自己的外链时，在 .env.local 里设 NEXT_PUBLIC_SPONSOR_URL 即可。
+ */
+export const SPONSOR_URL = process.env.NEXT_PUBLIC_SPONSOR_URL ?? '/sponsor'
