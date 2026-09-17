@@ -84,7 +84,8 @@ export async function getMonthCount(
 ): Promise<number> {
   const redis = getRedis()
   const yyyyMM = `${year}${String(month).padStart(2, '0')}`
-  const count = await redis.bitcount(KEY.checkin(userId, yyyyMM))
+  // BITCOUNT key 0 -1：统计整个 bitmap（类型上需要显式 start/end）
+  const count = await redis.bitcount(KEY.checkin(userId, yyyyMM), 0, -1)
   return Number(count) || 0
 }
 
@@ -93,10 +94,12 @@ export async function getYearCount(userId: string, year: number): Promise<number
   const redis = getRedis()
   const pipeline = redis.pipeline()
   for (let m = 1; m <= 12; m += 1) {
-    pipeline.bitcount(KEY.checkin(userId, `${year}${String(m).padStart(2, '0')}`))
+    pipeline.bitcount(KEY.checkin(userId, `${year}${String(m).padStart(2, '0')}`), 0, -1)
   }
   const result = (await pipeline.exec()) as unknown[]
-  return result.reduce((sum, v) => sum + (Number(v) || 0), 0)
+  let total = 0
+  for (const v of result) total += Number(v) || 0
+  return total
 }
 
 /** 任意闭区间内的打卡天数（可能跨月） */
@@ -126,7 +129,9 @@ export async function getRangeCount(
     }
   }
   const flat = (await pipeline.exec()) as unknown[]
-  return flat.reduce((sum, v) => sum + (Number(v) === 1 ? 1 : 0), 0)
+  let total = 0
+  for (const v of flat) if (Number(v) === 1) total += 1
+  return total
 }
 
 /**

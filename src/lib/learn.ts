@@ -93,9 +93,11 @@ export async function getLearnRecord(
   date: string,
 ): Promise<LearnRecord | null> {
   const redis = getRedis()
-  const raw = await redis.hget<StoredAnswer | string>(KEY.learnAnswers(userId), date)
+  const raw = (await redis.hget(KEY.learnAnswers(userId), date)) as unknown
   if (!raw) return null
-  const parsed: StoredAnswer = typeof raw === 'string' ? (JSON.parse(raw) as StoredAnswer) : raw
+  const parsed = (
+    typeof raw === 'string' ? (JSON.parse(raw) as unknown) : raw
+  ) as StoredAnswer
   return {
     date,
     lesson: parsed.lesson ?? null,
@@ -124,10 +126,11 @@ export async function getLearnHistory(
   const rawList = (await pipeline.exec()) as unknown[]
 
   return dates.map((date, i) => {
-    const raw = rawList[i]
+    const raw = rawList[i] as unknown
     if (!raw) return { date, lesson: null, answer: '', result: null, done: false }
-    const parsed: StoredAnswer =
-      typeof raw === 'string' ? (JSON.parse(raw) as StoredAnswer) : raw
+    const parsed = (
+      typeof raw === 'string' ? (JSON.parse(raw) as unknown) : raw
+    ) as StoredAnswer
     return {
       date,
       lesson: parsed.lesson ?? null,
@@ -144,11 +147,18 @@ export async function countLearnDays(userId: string): Promise<number> {
   const pipeline = redis.pipeline()
   for (let m = 1; m <= 12; m += 1) {
     pipeline.bitcount(
-      KEY.learn(userId, `${fromISODate(todayISO()).getUTCFullYear()}${String(m).padStart(2, '0')}`),
+      KEY.learn(
+        userId,
+        `${fromISODate(todayISO()).getUTCFullYear()}${String(m).padStart(2, '0')}`,
+      ),
+      0,
+      -1,
     )
   }
   const result = (await pipeline.exec()) as unknown[]
-  return result.reduce((sum, v) => sum + (Number(v) || 0), 0)
+  let total = 0
+  for (const v of result) total += Number(v) || 0
+  return total
 }
 
 /** 导出用：最近 90 天的学习记录 */
@@ -156,13 +166,13 @@ export async function exportLearnAnswers(
   userId: string,
 ): Promise<Record<string, StoredAnswer>> {
   const redis = getRedis()
-  const raw = await redis.hgetall<Record<string, StoredAnswer | string>>(
-    KEY.learnAnswers(userId),
-  )
+  const raw = (await redis.hgetall(KEY.learnAnswers(userId))) as
+    | Record<string, unknown>
+    | null
   if (!raw) return {}
   const out: Record<string, StoredAnswer> = {}
   for (const [k, v] of Object.entries(raw)) {
-    out[k] = typeof v === 'string' ? (JSON.parse(v) as StoredAnswer) : v
+    out[k] = (typeof v === 'string' ? (JSON.parse(v) as unknown) : v) as StoredAnswer
   }
   return out
 }

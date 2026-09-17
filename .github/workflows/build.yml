@@ -6,7 +6,7 @@ on:
   pull_request:
 
 env:
-  # 关闭匿名遥测，CI 日志更干净
+  # CI 里不参与匿名遥测
   NEXT_TELEMETRY_DISABLED: 1
 
 jobs:
@@ -19,41 +19,29 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install pnpm
+      - name: Install
         run: |
           corepack enable
           corepack prepare pnpm@9.15.9 --activate
+          pnpm install --no-frozen-lockfile
 
-      - name: Get pnpm store directory
-        id: pnpm-store
-        shell: bash
-        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
-
-      - name: Cache pnpm store
-        uses: actions/cache@v4
-        with:
-          path: ${{ steps.pnpm-store.outputs.STORE_PATH }}
-          key: ${{ runner.os }}-pnpm-${{ hashFiles('**/package.json') }}
-          restore-keys: |
-            ${{ runner.os }}-pnpm-
-
+      # 缓存 .next/cache，加速后续构建（消除 "No build cache found" 警告）
       - name: Cache Next.js build
         uses: actions/cache@v4
         with:
           path: |
             .next/cache
-          key: ${{ runner.os }}-next-${{ hashFiles('**/package.json', '**/*.ts', '**/*.tsx') }}
+            node_modules/.cache
+          key: ${{ runner.os }}-next-${{ hashFiles('**/pnpm-lock.yaml', '**/package.json') }}
           restore-keys: |
             ${{ runner.os }}-next-
-
-      - name: Install
-        run: pnpm install --no-frozen-lockfile
 
       - name: Build
         run: pnpm build
         env:
           # 构建期不需要真实凭证，占位即可（运行时会渲染配置引导）
-          AUTH_SECRET: build-only-placeholder-secret-1234567890
+          AUTH_SECRET: ci_placeholder_secret_please_replace_in_prod
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
           UPSTASH_REDIS_REST_URL: https://placeholder.upstash.io
           UPSTASH_REDIS_REST_TOKEN: placeholder
           AI_PROVIDER: cloudflare
